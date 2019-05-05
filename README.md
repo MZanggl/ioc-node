@@ -22,13 +22,13 @@ and make use of the binding with
 ioc.use('userService').create({ id: 1})
 ```
 
-If you don't want to create a new instance very time you use  `ioc.use`, use `ioc.singleton` instead of `ioc.bind`.
+If you don't want to create a new instance every time you use `ioc.use`, use `ioc.singleton` instead of `ioc.bind`.
 
 ```javascript
 ioc.singleton('userService', () => new UserService(new Database))
 
 ioc.use('userService').create({ id: 1})
-ioc.use('userService').create({ id: 2})
+ioc.use('userService').create({ id: 2}) // uses same instance
 ```
 
 ## Faking
