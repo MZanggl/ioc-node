@@ -1,0 +1,29 @@
+{
+  "name": "ioc-node",
+  "version": "1.0.0",
+  "description": "IoC container for Node",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "ioc",
+    "dependency",
+    "injection",
+    "inversion",
+    "of",
+    "control",
+    "service",
+    "container",
+    "node"
+  ],
+  "author": "Michael Zanggl",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  }
+}
