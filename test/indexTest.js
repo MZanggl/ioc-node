@@ -59,4 +59,12 @@ describe('root require', function () {
        const result = ioc.use('test/deeply/nested/file')
        expect(result).to.equal(1)
     })
+
+    it('should be able to fake require file from root', function () {
+        ioc.fake('test/deeply/nested/file', () => 'fake')
+
+       const result = ioc.use('test/deeply/nested/file')
+       ioc.restore('test/deeply/nested/file')
+       expect(result).to.equal('fake')
+    })
 })

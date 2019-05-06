@@ -2,38 +2,35 @@ const path = require('path')
 
 module.exports = function createIoC(rootPath) {
     return {
-        container: new Map,
-        fakes: new Map,
+        _container: new Map,
+        _fakes: new Map,
         bind(key, callback) {
-            this.container.set(key, {callback, singleton: false})
+            this._container.set(key, {callback, singleton: false})
         },
         singleton(key, callback) {
-            this.container.set(key, {callback, singleton: true})
+            this._container.set(key, {callback, singleton: true})
         },
         fake(key, callback) {
-            const item = this.container.get(key)
-            
-            if (!item) {
-                throw new Error('item not in ioc container')
-            }
-    
-            this.fakes.set(key, {callback, singleton: item.singleton})
+            const item = this._container.get(key)
+            this._fakes.set(key, {callback, singleton: item ? item.singleton : false})
         },
         restore(key) {
-            this.fakes.delete(key)
+            this._fakes.delete(key)
+        },
+        _findInContainer(namespace) {
+            if (this._fakes.has(namespace)) {
+                return this._fakes.get(namespace)
+            }
+
+            return this._container.get(namespace)
         },
         use(namespace) {
-            let item = this.container.get(namespace)
-            
+            const item = this._findInContainer(namespace)
+
             if (item) {
-                if (this.fakes.has(namespace)) {
-                    item = this.fakes.get(namespace)
-                }
-        
                 if (item.singleton && !item.instance) {
                     item.instance = item.callback()
                 }
-        
                 return item.singleton ? item.instance : item.callback()
             }
 
