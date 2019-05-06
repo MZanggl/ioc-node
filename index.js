@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = function createIoC(rootPath) {
     return {
         container: new Map,
@@ -20,28 +22,22 @@ module.exports = function createIoC(rootPath) {
         restore(key) {
             this.fakes.delete(key)
         },
-        use(key) {
-            let item = this.container.get(key)
+        use(namespace) {
+            let item = this.container.get(namespace)
             
-            if (!item) {
-                throw new Error('item not in ioc container')
+            if (item) {
+                if (this.fakes.has(namespace)) {
+                    item = this.fakes.get(namespace)
+                }
+        
+                if (item.singleton && !item.instance) {
+                    item.instance = item.callback()
+                }
+        
+                return item.singleton ? item.instance : item.callback()
             }
-    
-            if (this.fakes.has(key)) {
-                item = this.fakes.get(key)
-            }
-    
-            if (item.singleton && !item.instance) {
-                item.instance = item.callback()
-            }
-    
-            return item.singleton ? item.instance : item.callback()
-        },
-        require(path) {
-            if (path.startsWith('/')) {
-                path = path.substr(1)
-            }
-            return require(rootPath + '/' + path)
+
+            return require(path.join(rootPath, namespace))
         }
     }
 }

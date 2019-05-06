@@ -54,10 +54,9 @@ describe('faking', function () {
     })
 })
 
-
 describe('root require', function () {
     it('should require file from root', function () {
-       const result = ioc.require('test/deeply/nested/file')
+       const result = ioc.use('test/deeply/nested/file')
        expect(result).to.equal(1)
     })
 })

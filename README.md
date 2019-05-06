@@ -45,8 +45,8 @@ ioc.fake('userService', () => new UserService(new TestableDatabase))
 After running your tests, use `ioc.restore('userService')` to remove the fake.
 
 ## Global Require
-You can require files globally from any point in the app with `ioc.require`.
+The `use` method can also require files globally from any point in the app.
 
 ```javascript
-const User = ioc.require('app/models/User')
+const User = ioc.use('app/models/User')
 ```
