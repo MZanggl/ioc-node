@@ -5,6 +5,18 @@ module.exports = function createIoC(rootPath) {
         _container: new Map,
         _fakes: new Map,
         _aliases: new Map,
+        consume(namespace, Provider) {
+            if (!namespace) {
+                throw new Error('namespace not provided')
+            }
+
+            const provider = new Provider
+            if (!provider.register) {
+                throw new Error('register method not found on provider')
+            }
+
+            provider.register(this, namespace)
+        },
         bind(key, callback) {
             this._container.set(key, {callback, singleton: false})
         },

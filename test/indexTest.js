@@ -134,3 +134,30 @@ describe('alias', function() {
         expect(test.get()).to.equal('fake')
     })
 })
+
+describe('consume', function() {
+    it('should be able to consume providers', function() {
+        class TestClass {}
+        class TestProvider {
+            register(ioc, namespace) {
+                ioc.bind(namespace, () => new TestClass)
+            }
+        }
+
+        ioc.consume('Test', TestProvider)
+
+        expect(ioc.use('Test')).to.be.instanceOf(TestClass)
+    })
+
+    it('should crash when provider does not have register method', function() {
+        class TestProvider {}
+
+        expect(() => ioc.consume('Test', TestProvider)).to.throw('register method not found on provider')
+    })
+
+    it('should crash when namespace not provided', function() {
+        class TestProvider {}
+
+        expect(() => ioc.consume(null, TestProvider)).to.throw('namespace not provided')
+    })
+})

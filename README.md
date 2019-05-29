@@ -24,7 +24,7 @@ class UserService {
 }
 ```
 
-You can bind the dependencies using
+You can inject dependencies using
 
 ```javascript
 ioc.bind('userService', () => new UserService(new Database))
@@ -106,7 +106,7 @@ const userService = ioc.make('App/Services/UserService', 1, 2, 3, 4)
 
 ## Faking Automatic Injection
 
-In the above case, you can still use `ioc.fake` to provide a fake database or a fake userService.
+In the above case, you can still use `ioc.fake` to provide a fake database or a fake userService since `ioc.make('App/Services/UserService')` uses `ioc.use` under the hood. In addition, every auto injected dependencies also gets resolved using `ioc.use`.
 
 Alternatively you can just new up an instance of the class manually.
 
@@ -134,4 +134,49 @@ ioc.alias('Cache', 'App/Utils/Cache')
 const cache = ioc.make('Cache')
 //or
 const Cache = ioc.use('Cache')
+```
+
+We can also use the alias for automatic injections.
+
+```javascript
+class UserService {
+    static get inject() {
+        return ['Cache']
+    }
+
+    // ...
+}
+```
+
+## Creating Providers
+If you extract code into separate npm modules, you can create a provider that can be easily consumed by the ioc container.
+
+Say you have the following module
+
+```javascript
+class StringTransformer {
+    toUpperCase(value) {
+        return value.toUpperCase()
+    }
+}
+
+module.exports = StringTransformer
+```
+
+In the same module, you can create a provider like this
+
+```javascript
+class StringTransformerProvider {
+    register(ioc, namespace) {
+        ioc.singleton(namespace, () => new StringTransformer)
+    }
+}
+
+module.exports = StringTransformerProvider
+```
+
+and inside the service provider of your app, you can consume this provider
+
+```javascript
+ioc.consume('App/StringTransformer', StringTransformerProvider)
 ```
