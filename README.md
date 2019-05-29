@@ -14,17 +14,29 @@ global.ioc = require('ioc-node')(__dirname)
 
 ## Usage
 
+Imagine the following class
+
+```javascript
+class UserService {
+    constructor(database) {
+        this.database = database
+    }
+}
+```
+
+You can bind the dependencies using
+
 ```javascript
 ioc.bind('userService', () => new UserService(new Database))
 ```
 
-and make use of the binding with
+and later make use of the binding with
 
 ```javascript
 ioc.use('userService').create({ id: 1})
 ```
 
-If you don't want to create a new instance every time you use `ioc.use`, use `ioc.singleton` instead of `ioc.bind`.
+If you don't want to create a new instance every time you use `ioc.use`, create the binding with `ioc.singleton` instead of `ioc.bind`.
 
 ```javascript
 ioc.singleton('userService', () => new UserService(new Database))
@@ -42,9 +54,11 @@ class TestableDatabase {
 }
 
 ioc.fake('userService', () => new UserService(new TestableDatabase))
-```
 
-After running your tests, use `ioc.restore('userService')` to remove the fake.
+// run test
+
+ioc.restore('userService') // remove the fake again
+```
 
 ## Global Require
 The `use` method can also require files globally from any point in the app.
@@ -54,10 +68,9 @@ const User = ioc.use('app/models/User')
 ```
 
 ## Automatic Injection
+It might be cumbersome to always add bindings, that's why ioc-node also supports automatic injection. Since there are no static types we have to workaround a little to get this working.
 
-It might be cumbersome to always add bindings, that's why node-ioc also supports automatic injection. Since there are no static types we have to workaround a little to get this working.
-
-Instead of registering bindings in the  service provider using `ioc.bind('userService', () => new UserService(new Database))`, you can link to the dependency directly in the class
+Instead of registering bindings in the service provider using `ioc.bind('userService', () => new UserService(new Database))`, you can link to the dependency directly in the class
 
 ```javascript
 // App/Services/UserService
@@ -93,7 +106,7 @@ const userService = ioc.make('App/Services/UserService', 1, 2, 3, 4)
 
 ## Faking Automatic Injection
 
-In the above case, you can still use `ioc.fake` to provide a fake database.
+In the above case, you can still use `ioc.fake` to provide a fake database or a fake userService.
 
 Alternatively you can just new up an instance of the class manually.
 
@@ -108,7 +121,7 @@ const userService = new UserService(new TestableDatabase))
 
 ## Aliases
 
-When using `ioc.bind` or `ioc.singleton` we can access the bindings using the key we provide. Automatic injection doesn't provide that flexibility out of the box. 
+When using `ioc.bind` or `ioc.singleton` we can access the bindings using the key we provide. Global requires and automatic injections don't provide that flexibility out of the box. 
 Say the file `Cache.js` is inside `App/Utils/`. You have to create it using `ioc.make('App/Utils/Cache')`, while you might actually want to do `ioc.make('Cache')`.
 
 For this you can use aliases.
@@ -118,5 +131,7 @@ For this you can use aliases.
 ioc.alias('Cache', 'App/Utils/Cache')
 
 // anywhere
-ioc.make('Cache')
+const cache = ioc.make('Cache')
+//or
+const Cache = ioc.use('Cache')
 ```

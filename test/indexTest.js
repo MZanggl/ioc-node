@@ -116,6 +116,12 @@ describe('alias', function() {
         expect(test.get()).to.equal(1)
     })
 
+    it('can alias global requires', function() {
+        ioc.alias('SimpleClass', 'test/modules/SimpleClass')
+        const test = new (ioc.use('SimpleClass'))
+        expect(test.get()).to.equal(1)
+    })
+
     it('favors fakes over aliases', function() {
         class TestableSimpleClass {
             get() { return 'fake'}
