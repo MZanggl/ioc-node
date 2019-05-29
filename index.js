@@ -4,6 +4,7 @@ module.exports = function createIoC(rootPath) {
     return {
         _container: new Map,
         _fakes: new Map,
+        _aliases: new Map,
         bind(key, callback) {
             this._container.set(key, {callback, singleton: false})
         },
@@ -13,6 +14,9 @@ module.exports = function createIoC(rootPath) {
         fake(key, callback) {
             const item = this._container.get(key)
             this._fakes.set(key, {callback, singleton: item ? item.singleton : false})
+        },
+        alias(key, pathToResolve) {
+            this._aliases.set(key, pathToResolve)
         },
         restore(key) {
             this._fakes.delete(key)
@@ -27,6 +31,10 @@ module.exports = function createIoC(rootPath) {
         use(namespace) {
             const item = this._findInContainer(namespace)
 
+            if (!item && this._aliases.has(namespace)) {
+                return this.use(this._aliases.get(namespace))
+            }
+
             if (item) {
                 if (item.singleton && !item.instance) {
                     item.instance = item.callback()
@@ -39,6 +47,10 @@ module.exports = function createIoC(rootPath) {
         make(object, ...argsAfterInjections) {
             if (typeof object === 'string') {
                 object = this.use(object)
+            }
+
+            if (typeof object !== 'function') {
+                return object
             }
 
             if (!Array.isArray(object.inject)) {

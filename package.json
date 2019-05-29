@@ -1,6 +1,6 @@
 {
   "name": "ioc-node",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "IoC container for Node",
   "main": "index.js",
   "directories": {

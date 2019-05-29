@@ -105,3 +105,18 @@ class TestableDatabase {
 
 const userService = new UserService(new TestableDatabase))
 ```
+
+## Aliases
+
+When using `ioc.bind` or `ioc.singleton` we can access the bindings using the key we provide. Automatic injection doesn't provide that flexibility out of the box. 
+Say the file `Cache.js` is inside `App/Utils/`. You have to create it using `ioc.make('App/Utils/Cache')`, while you might actually want to do `ioc.make('Cache')`.
+
+For this you can use aliases.
+
+```javascript
+// in service provider
+ioc.alias('Cache', 'App/Utils/Cache')
+
+// anywhere
+ioc.make('Cache')
+```

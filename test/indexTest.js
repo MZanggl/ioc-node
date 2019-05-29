@@ -101,10 +101,30 @@ describe('auto injection', function() {
             get() { return 'fake'}
         }
 
-        ioc.fake('test/modules/SimpleClass', () => TestableSimpleClass)
+        ioc.fake('test/modules/SimpleClass', () => new TestableSimpleClass)
         const test = ioc.make('test/modules/InjectsSimpleClass')
         ioc.restore('test/modules/SimpleClass')
 
+        expect(test.get()).to.equal('fake')
+    })
+})
+
+describe('alias', function() {
+    it('can use alias to make class', function() {
+        ioc.alias('SimpleClass', 'test/modules/SimpleClass')
+        const test = ioc.make('SimpleClass')
+        expect(test.get()).to.equal(1)
+    })
+
+    it('favors fakes over aliases', function() {
+        class TestableSimpleClass {
+            get() { return 'fake'}
+        }
+
+        ioc.alias('SimpleClass', 'test/modules/SimpleClass')
+        ioc.fake('SimpleClass', () => new TestableSimpleClass)
+
+        const test = ioc.make('SimpleClass')
         expect(test.get()).to.equal('fake')
     })
 })
