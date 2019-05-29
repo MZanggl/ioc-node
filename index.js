@@ -35,6 +35,29 @@ module.exports = function createIoC(rootPath) {
             }
 
             return require(path.join(rootPath, namespace))
+        },
+        make(object, ...argsAfterInjections) {
+            if (typeof object === 'string') {
+                object = this.use(object)
+            }
+
+            if (!Array.isArray(object.inject)) {
+                return new object
+            }
+
+            const args = object.inject.map(path => {
+                const requiredFile = this.use(path)
+                if (typeof requiredFile !== 'function') {
+                    return requiredFile
+                }
+
+                return this.make(requiredFile)
+            })
+
+            return new object(
+                ...args,
+                ...argsAfterInjections
+            )
         }
     }
 }

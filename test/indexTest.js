@@ -56,15 +56,55 @@ describe('faking', function () {
 
 describe('root require', function () {
     it('should require file from root', function () {
-       const result = ioc.use('test/deeply/nested/file')
+       const result = ioc.use('test/modules/file')
        expect(result).to.equal(1)
     })
 
     it('should be able to fake require file from root', function () {
-        ioc.fake('test/deeply/nested/file', () => 'fake')
+        ioc.fake('test/modules/file', () => 'fake')
 
-       const result = ioc.use('test/deeply/nested/file')
-       ioc.restore('test/deeply/nested/file')
+       const result = ioc.use('test/modules/file')
+       ioc.restore('test/modules/file')
        expect(result).to.equal('fake')
+    })
+})
+
+describe('auto injection', function() {
+    it('can use classes that dont come with auto injections', function() {
+        const classDeclaration = ioc.use('test/modules/SimpleClass')
+        const test = ioc.make(classDeclaration)
+        expect(test.get()).to.equal(1)
+    })
+
+    it('can make classes using the filepath', function() {
+        const test = ioc.make('test/modules/SimpleClass')
+        expect(test.get()).to.equal(1)
+    })
+
+    it('should auto inject classes found in static inject', function() {
+        const test = ioc.make('test/modules/InjectsSimpleClass')
+        expect(test.get()).to.equal(1)
+    })
+
+    it('should auto inject recursively', function() {
+        const test = ioc.make('test/modules/RecursiveInjection')
+        expect(test.get()).to.equal(1)
+    })
+
+    it('should be possible to pass additional arguments', function() {
+        const test = ioc.make('test/modules/InjectsSimpleClass', 1, 2, 3)
+        expect(test.restOfArgs).to.deep.equal([1,2,3])
+    })
+
+    it('should be able to fake injected dependency', function() {
+        class TestableSimpleClass {
+            get() { return 'fake'}
+        }
+
+        ioc.fake('test/modules/SimpleClass', () => TestableSimpleClass)
+        const test = ioc.make('test/modules/InjectsSimpleClass')
+        ioc.restore('test/modules/SimpleClass')
+
+        expect(test.get()).to.equal('fake')
     })
 })
