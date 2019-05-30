@@ -7,10 +7,6 @@ class RecursiveInjection {
     constructor(injectsSimpleClass) {
         this.injectsSimpleClass = injectsSimpleClass
     }
-
-    get() {
-        return this.injectsSimpleClass.get()
-    }
 }
 
 module.exports = RecursiveInjection

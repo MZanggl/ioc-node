@@ -8,10 +8,6 @@ class InjectsSimpleClass {
         this.simpleClass = simpleClass
         this.restOfArgs = restOfArgs
     }
-
-    get() {
-        return this.simpleClass.get()
-    }
 }
 
 module.exports = InjectsSimpleClass

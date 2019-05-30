@@ -1,7 +1,3 @@
-class TestClass {
-    get() {
-        return 1
-    }
-}
+class SimpleClass {}
 
-module.exports = TestClass
+module.exports = SimpleClass

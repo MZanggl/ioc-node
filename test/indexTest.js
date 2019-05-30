@@ -70,25 +70,28 @@ describe('root require', function () {
 })
 
 describe('auto injection', function() {
+    
     it('can use classes that dont come with auto injections', function() {
-        const classDeclaration = ioc.use('test/modules/SimpleClass')
-        const test = ioc.make(classDeclaration)
-        expect(test.get()).to.equal(1)
+        const SimpleClass = ioc.use('test/modules/SimpleClass')
+        const test = ioc.make(SimpleClass)
+        expect(test).to.be.instanceOf(SimpleClass)
     })
 
-    it('can make classes using the filepath', function() {
+    it('can make classes using the filepath instead of the class declaration', function() {
         const test = ioc.make('test/modules/SimpleClass')
-        expect(test.get()).to.equal(1)
+        expect(test).to.be.instanceOf(ioc.use('test/modules/SimpleClass'))
     })
 
     it('should auto inject classes found in static inject', function() {
-        const test = ioc.make('test/modules/InjectsSimpleClass')
-        expect(test.get()).to.equal(1)
+        const injectsSimpleClass = ioc.make('test/modules/InjectsSimpleClass')
+        expect(injectsSimpleClass.simpleClass).to.be.instanceOf(ioc.use('test/modules/SimpleClass'))
     })
 
     it('should auto inject recursively', function() {
-        const test = ioc.make('test/modules/RecursiveInjection')
-        expect(test.get()).to.equal(1)
+        const recursiveInjection = ioc.make('test/modules/RecursiveInjection')
+        expect(recursiveInjection.injectsSimpleClass.simpleClass).to.be.instanceOf(
+            ioc.use('test/modules/SimpleClass')
+        )
     })
 
     it('should be possible to pass additional arguments', function() {
@@ -97,41 +100,38 @@ describe('auto injection', function() {
     })
 
     it('should be able to fake injected dependency', function() {
-        class TestableSimpleClass {
-            get() { return 'fake'}
-        }
+        class TestableSimpleClass {}
 
         ioc.fake('test/modules/SimpleClass', () => new TestableSimpleClass)
-        const test = ioc.make('test/modules/InjectsSimpleClass')
+        const injectsSimpleClass = ioc.make('test/modules/InjectsSimpleClass')
         ioc.restore('test/modules/SimpleClass')
 
-        expect(test.get()).to.equal('fake')
+        expect(injectsSimpleClass.simpleClass).to.be.instanceOf(TestableSimpleClass)
     })
 })
 
 describe('alias', function() {
     it('can use alias to make class', function() {
         ioc.alias('SimpleClass', 'test/modules/SimpleClass')
-        const test = ioc.make('SimpleClass')
-        expect(test.get()).to.equal(1)
+        const simpleClass = ioc.make('SimpleClass')
+        expect(simpleClass).to.be.instanceOf(ioc.use('SimpleClass'))
     })
 
     it('can alias global requires', function() {
         ioc.alias('SimpleClass', 'test/modules/SimpleClass')
-        const test = new (ioc.use('SimpleClass'))
-        expect(test.get()).to.equal(1)
+        const SimpleClass = ioc.use('SimpleClass')
+        const test = new SimpleClass
+        expect(test).to.be.instanceOf(SimpleClass)
     })
 
     it('favors fakes over aliases', function() {
-        class TestableSimpleClass {
-            get() { return 'fake'}
-        }
+        class TestableSimpleClass {}
 
         ioc.alias('SimpleClass', 'test/modules/SimpleClass')
         ioc.fake('SimpleClass', () => new TestableSimpleClass)
 
         const test = ioc.make('SimpleClass')
-        expect(test.get()).to.equal('fake')
+        expect(test).to.be.instanceOf(TestableSimpleClass)
     })
 })
 
