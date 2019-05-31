@@ -11,7 +11,7 @@ module.exports = function createIoC(rootPath) {
             }
 
             const provider = new Provider
-            if (!provider.register) {
+            if (typeof provider.register !== 'function') {
                 throw new Error('register method not found on provider')
             }
 
@@ -54,7 +54,12 @@ module.exports = function createIoC(rootPath) {
                 return item.singleton ? item.instance : item.callback()
             }
 
-            return require(path.join(rootPath, namespace))
+            try {
+                return require(path.join(rootPath, namespace))
+            }
+            catch(error) {
+                throw new Error(`Cannot find module '${namespace}' in container, alias or file system`)
+            }
         },
         make(object, ...argsAfterInjections) {
             if (typeof object === 'string') {

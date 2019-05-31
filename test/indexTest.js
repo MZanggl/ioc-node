@@ -67,6 +67,10 @@ describe('root require', function () {
        ioc.restore('test/modules/file')
        expect(result).to.equal('fake')
     })
+
+    it('should throw custom error when not able to resolve', function() {
+        expect(() => ioc.use('nonexistent')).to.throw('Cannot find module \'nonexistent\' in container, alias or file system')
+    })
 })
 
 describe('auto injection', function() {

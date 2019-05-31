@@ -55,7 +55,8 @@ class TestableDatabase {
 
 ioc.fake('userService', () => new UserService(new TestableDatabase))
 
-// run test
+const userService = ioc.use('userService')
+// assert...
 
 ioc.restore('userService') // remove the fake again
 ```
@@ -88,7 +89,7 @@ class UserService {
 And instead of newing up the class manually, we do
 
 ```javascript
-const userService = ioc.make('App/Services/UserService')
+const userService = ioc.make('App/Services/UserService') // will use ioc.use to resolve dependency
 ```
 
 or 
@@ -106,7 +107,7 @@ const userService = ioc.make('App/Services/UserService', 1, 2, 3, 4)
 
 ## Faking Automatic Injection
 
-In the above case, you can still use `ioc.fake` to provide a fake database or a fake userService since `ioc.make('App/Services/UserService')` uses `ioc.use` under the hood. In addition, every auto injected dependencies also gets resolved using `ioc.use`.
+In the above case, you can still use `ioc.fake` to provide a fake database or a fake userService since `ioc.make('App/Services/UserService')` uses `ioc.use` under the hood. In addition, every auto injected dependencies (e.g. "path/to/Database") also gets resolved using `ioc.use`.
 
 Alternatively you can just new up an instance of the class manually.
 
@@ -122,7 +123,7 @@ const userService = new UserService(new TestableDatabase))
 ## Aliases
 
 When using `ioc.bind` or `ioc.singleton` we can access the bindings using the key we provide. Global requires and automatic injections don't provide that flexibility out of the box. 
-Say the file `Cache.js` is inside `App/Utils/`. You have to create it using `ioc.make('App/Utils/Cache')`, while you might actually want to do `ioc.make('Cache')`.
+Say the file `Cache.js` is inside `App/Utils/`. You have to require it using `ioc.use('App/Utils/Cache')`, while you might actually want to do `ioc.use('Cache')`.
 
 For this you can use aliases.
 
@@ -147,6 +148,13 @@ class UserService {
     // ...
 }
 ```
+
+## How ioc.use resolves dependencies
+1. Look in fakes (`ioc.fake`)
+2. Look in container (`ioc.bind` / `ioc.singleton`)
+3. Look in aliases (`ioc.alias`)
+    1. Repeat process with resolved name
+4. Native require from root of the project
 
 ## Creating Providers
 If you extract code into separate npm modules, you can create a provider that can be easily consumed by the ioc container.
