@@ -69,17 +69,10 @@ module.exports = function createIoC(rootPath) {
                 return new object
             }
 
-            const args = object.inject.map(path => {
-                const requiredFile = this.use(path)
-                if (typeof requiredFile !== 'function') {
-                    return requiredFile
-                }
-
-                return this.make(requiredFile)
-            })
+            const dependencies = object.inject.map(path => this.make(this.use(path)) )
 
             return new object(
-                ...args,
+                ...dependencies,
                 ...argsAfterInjections
             )
         }
