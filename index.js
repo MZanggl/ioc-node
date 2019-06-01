@@ -11,10 +11,6 @@ module.exports = function createIoC(rootPath) {
             }
 
             const provider = new Provider
-            if (typeof provider.register !== 'function') {
-                throw new Error('register method not found on provider')
-            }
-
             provider.register(this, namespace)
         },
         bind(key, callback) {
@@ -61,7 +57,7 @@ module.exports = function createIoC(rootPath) {
                 throw new Error(`Cannot find module '${namespace}' in container, alias or file system`)
             }
         },
-        make(object, ...argsAfterInjections) {
+        make(object, ...additionalArguments) {
             if (typeof object === 'string') {
                 object = this.use(object)
             }
@@ -74,11 +70,9 @@ module.exports = function createIoC(rootPath) {
                 return new object
             }
 
-            const dependencies = object.inject.map(path => this.make(this.use(path)) )
-
             return new object(
-                ...dependencies,
-                ...argsAfterInjections
+                ...object.inject.map(path => this.make(path)),
+                ...additionalArguments
             )
         }
     }

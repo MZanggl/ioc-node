@@ -156,11 +156,13 @@ describe('consume', function() {
     it('should crash when provider does not have register method', function() {
         class TestProvider {}
 
-        expect(() => ioc.consume('Test', TestProvider)).to.throw('register method not found on provider')
+        expect(() => ioc.consume('Test', TestProvider)).to.throw('provider.register is not a function')
     })
 
     it('should crash when namespace not provided', function() {
-        class TestProvider {}
+        class TestProvider {
+            register() {}
+        }
 
         expect(() => ioc.consume(null, TestProvider)).to.throw('namespace not provided')
     })
