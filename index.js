@@ -67,7 +67,7 @@ module.exports = function createIoC(rootPath) {
             }
 
             if (!Array.isArray(object.inject)) {
-                return new object
+                return new object(...additionalArguments)
             }
 
             return new object(

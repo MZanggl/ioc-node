@@ -103,6 +103,11 @@ describe('auto injection', function() {
         expect(test.restOfArgs).to.deep.equal([1,2,3])
     })
 
+    it('should be possible to pass additional arguments without injections', function() {
+        const test = ioc.make('test/modules/SimpleClass', 1, 2, 3)
+        expect(test.args).to.deep.equal([1,2,3])        
+    })
+
     it('should be able to fake injected dependency', function() {
         class TestableSimpleClass {}
 
