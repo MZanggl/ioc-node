@@ -21,6 +21,10 @@ class UserService {
     constructor(database) {
         this.database = database
     }
+
+    create(data) {
+       this.database.create('user', data)
+    }
 }
 ```
 
